@@ -21,6 +21,8 @@ Route::get('/products/{id}', [HomeController::class, 'show'])->name('products.sh
 Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{productId}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/increase/{id}', [CartController::class, 'increase'])->name('cart.increase');
+    Route::post('/cart/decrease/{id}', [CartController::class, 'decrease'])->name('cart.decrease');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 });
 

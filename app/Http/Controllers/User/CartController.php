@@ -50,4 +50,24 @@ class CartController extends Controller
         DB::table('carts')->where('id', $id)->where('user_id', Auth::id())->delete();
         return redirect()->back()->with('success', 'Đã xóa khỏi giỏ hàng!');
     }
+
+    public function increase($id)
+    {
+        DB::table('carts')->where('id', $id)->where('user_id', Auth::id())
+            ->increment('quantity');
+        return redirect()->back();
+    }
+
+    public function decrease($id)
+    {
+        $item = DB::table('carts')->where('id', $id)->where('user_id', Auth::id())->first();
+        if ($item) {
+            if ($item->quantity <= 1) {
+                DB::table('carts')->where('id', $id)->delete();
+            } else {
+                DB::table('carts')->where('id', $id)->decrement('quantity');
+            }
+        }
+        return redirect()->back();
+    }
 }

@@ -1,12 +1,16 @@
 @extends('layouts.user')
 
 @section('content')
-<div class="row mb-3">
-    <div class="col-md-8">
-        <form method="GET" action="{{ route('home') }}" class="d-flex gap-2">
-            <input type="text" name="search" class="form-control" placeholder="Tìm sản phẩm..."
-                   value="{{ request('search') }}">
-            <select name="category" class="form-select" style="max-width:180px">
+
+{{-- Search & Filter --}}
+<form method="GET" action="{{ route('home') }}" class="mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm sản phẩm..."
+                   value="{{ request('search') }}" style="border-radius:8px;border:1.5px solid #e0e0e0;padding:10px 14px">
+        </div>
+        <div class="col-md-3">
+            <select name="category" class="form-select" style="border-radius:8px;border:1.5px solid #e0e0e0;padding:10px 14px">
                 <option value="">Tất cả danh mục</option>
                 @foreach($categories as $cat)
                     <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
@@ -14,36 +18,56 @@
                     </option>
                 @endforeach
             </select>
-            <button class="btn btn-primary">Tìm</button>
-            @if(request('search') || request('category'))
-                <a href="{{ route('home') }}" class="btn btn-outline-secondary">Xóa</a>
-            @endif
-        </form>
+        </div>
+        <div class="col-auto">
+            <button class="btn px-4" style="background:#e94560;color:#fff;border-radius:8px;padding:10px 20px">Tìm</button>
+        </div>
+        @if(request('search') || request('category'))
+        <div class="col-auto">
+            <a href="{{ route('home') }}" class="btn btn-outline-secondary" style="border-radius:8px">Xóa lọc</a>
+        </div>
+        @endif
     </div>
-</div>
+</form>
 
-<div class="row row-cols-1 row-cols-md-4 g-4">
+{{-- Products Grid --}}
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
     @forelse($products as $product)
     <div class="col">
-        <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none text-dark">
-            <div class="card h-100 shadow-sm">
+        <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none">
+            <div class="card h-100">
                 @if($product->image)
                     <img src="{{ Storage::url($product->image) }}" class="card-img-top"
-                         style="height:200px;object-fit:cover">
+                         style="height:210px;object-fit:cover">
                 @else
-                    <div class="bg-secondary d-flex align-items-center justify-content-center"
-                         style="height:200px;color:#fff">Không có ảnh</div>
+                    <div class="d-flex align-items-center justify-content-center bg-light"
+                         style="height:210px;border-radius:12px 12px 0 0;color:#bbb;font-size:.9rem">
+                        Không có ảnh
+                    </div>
                 @endif
-                <div class="card-body">
-                    <h6 class="card-title">{{ $product->name }}</h6>
-                    <p class="text-muted small mb-1">{{ $product->category_name }}</p>
-                    <p class="fw-bold text-danger">{{ number_format($product->price, 0, ',', '.') }} đ</p>
+                <div class="card-body pb-3">
+                    <span class="badge-cat">{{ $product->category_name }}</span>
+                    <h6 class="mt-2 mb-1 text-dark" style="font-size:.95rem;font-weight:600">{{ $product->name }}</h6>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="price-tag">{{ number_format($product->price, 0, ',', '.') }} đ</div>
+                        @auth
+                            <form method="POST" action="{{ route('cart.add', $product->id) }}" onclick="event.stopPropagation()">
+                                @csrf
+                                <button type="submit" class="btn btn-sm"
+                                        style="background:#e94560;color:#fff;border-radius:6px;font-size:.8rem;padding:4px 12px">
+                                    + Giỏ
+                                </button>
+                            </form>
+                        @endauth
+                    </div>
                 </div>
             </div>
         </a>
     </div>
     @empty
-    <div class="col-12"><p class="text-muted">Không tìm thấy sản phẩm nào.</p></div>
+    <div class="col-12">
+        <div class="text-center py-5 text-muted">Không tìm thấy sản phẩm nào.</div>
+    </div>
     @endforelse
 </div>
 @endsection
